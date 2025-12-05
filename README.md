@@ -69,6 +69,32 @@ The model is based on LLaDA-8B-Instruct, you can use the code for [LLaDA-8B-Inst
 curl -sSL https://raw.githubusercontent.com/junos-ai-org/LLaDA-1.5/main/setup_runpod.sh | bash
 ```
 
+### RunPod Serverless (Optional)
+
+For production API deployment with pay-per-request billing:
+
+1. **Build and push Docker image**
+   ```bash
+   docker build -t yourusername/llada-1.5-serverless .
+   docker push yourusername/llada-1.5-serverless
+   ```
+
+2. **Create Serverless Endpoint**
+   - Go to RunPod → Serverless → New Endpoint
+   - Select your Docker image
+   - Choose GPU type (24GB+ VRAM)
+   - Deploy
+
+3. **Call the API**
+   ```python
+   import runpod
+   runpod.api_key = "your_api_key"
+
+   endpoint = runpod.Endpoint("your_endpoint_id")
+   result = endpoint.run_sync({"input": {"prompt": "What is AI?"}})
+   print(result["response"])
+   ```
+
 ## Contact
 
 If you have any questions, please feel free to contact fengqizhu@ruc.edu.cn.
