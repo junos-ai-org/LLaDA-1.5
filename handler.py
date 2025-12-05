@@ -9,9 +9,15 @@ Usage:
 3. Create Serverless Endpoint on RunPod using your image
 """
 
+import os
 import runpod
 import torch
 from transformers import AutoModel, AutoTokenizer
+
+# Configure cache directory for network volume (if available)
+CACHE_DIR = os.environ.get('HF_HOME', '/workspace/huggingface')
+os.environ['HF_HOME'] = CACHE_DIR
+os.environ['TRANSFORMERS_CACHE'] = os.path.join(CACHE_DIR, 'hub')
 
 # Global model and tokenizer (loaded once at cold start)
 model = None
@@ -23,7 +29,7 @@ def load_model():
     global model, tokenizer
 
     if model is None:
-        print("Loading LLaDA-1.5 model...")
+        print(f"Loading LLaDA-1.5 model (cache: {CACHE_DIR})...")
         tokenizer = AutoTokenizer.from_pretrained(
             'GSAI-ML/LLaDA-1.5',
             trust_remote_code=True

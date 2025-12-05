@@ -4,6 +4,9 @@
 
 set -e
 
+# Default cache directory on RunPod network volume
+CACHE_DIR="/workspace/huggingface"
+
 echo "=========================================="
 echo "Setting up LLaDA-1.5 on RunPod"
 echo "=========================================="
@@ -12,6 +15,13 @@ echo "=========================================="
 echo ""
 echo "Checking GPU..."
 nvidia-smi --query-gpu=name,memory.total --format=csv,noheader
+
+# Set up cache directory on network volume
+echo ""
+echo "Setting up cache directory: $CACHE_DIR"
+mkdir -p "$CACHE_DIR"
+export HF_HOME="$CACHE_DIR"
+export TRANSFORMERS_CACHE="$CACHE_DIR/hub"
 
 # Upgrade pip
 echo ""
@@ -36,11 +46,13 @@ fi
 
 # Pre-download the model (optional but recommended)
 echo ""
-echo "Do you want to pre-download the model? (y/n)"
+echo "Do you want to pre-download the model to $CACHE_DIR? (y/n)"
 read -r response
 if [[ "$response" =~ ^[Yy]$ ]]; then
-    echo "Pre-downloading LLaDA-1.5 model (~16GB)..."
+    echo "Pre-downloading LLaDA-1.5 model (~16GB) to network volume..."
     python -c "
+import os
+os.environ['HF_HOME'] = '$CACHE_DIR'
 from transformers import AutoModel, AutoTokenizer
 print('Downloading tokenizer...')
 tokenizer = AutoTokenizer.from_pretrained('GSAI-ML/LLaDA-1.5', trust_remote_code=True)
@@ -54,7 +66,10 @@ echo ""
 echo "=========================================="
 echo "Setup complete!"
 echo ""
+echo "Model cache: $CACHE_DIR"
+echo ""
 echo "To run inference:"
-echo "  python inference.py --interactive"
-echo "  python inference.py --prompt 'Your question here'"
+echo "  python inference.py --cache-dir $CACHE_DIR --interactive"
+echo "  python inference.py --cache-dir $CACHE_DIR --prompt 'Your question here'"
+echo "  python inference.py --cache-dir $CACHE_DIR --interactive --show-unmasking"
 echo "=========================================="
