@@ -31,7 +31,7 @@ pip install --upgrade pip
 # Install requirements
 echo ""
 echo "Installing dependencies..."
-pip install torch transformers accelerate huggingface_hub
+pip install torch transformers accelerate huggingface_hub hf_transfer
 
 # Clone the repo if not already present
 if [ ! -d "LLaDA-1.5" ]; then
